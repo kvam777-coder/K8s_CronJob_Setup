@@ -1,0 +1,26 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: my-cronJob1
+spec:
+  schedule: "30 * * * *"
+  concurrencyPolicy: "Forbid"  //this is to overlap the concurrent jobs
+  startingDeadlineSeconds: 300
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - image: <repo>:latest
+              name: my-container
+          restartPolicy: onFailure // if a job run exists with exit1, new job get created automatically
+          env:
+            - name: my-container-env
+              valueFrom:
+                secretKeyRef:
+                  key: java_index_name
+                  name: vault1
+
+          envFrom:
+            - configMapRef:
+                  name: java_index_config_map
